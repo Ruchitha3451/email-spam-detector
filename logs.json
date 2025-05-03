@@ -1,0 +1,18 @@
+[
+    {
+        "timestamp": "2025-05-03 12:36:41",
+        "result": "Not Spam",
+        "text": "good morning 123 ugly"
+    },
+    {
+        "timestamp": "2025-05-03 12:37:04",
+        "result": "Spam",
+        "text": "hello how are you sir "
+    },
+    {
+        "id": "20250503124159740494",
+        "timestamp": "2025-05-03 12:41:59",
+        "result": "Not Spam",
+        "text": "hellow 123"
+    }
+]

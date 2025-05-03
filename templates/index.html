@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Email Spam Detection</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f0f2f5, #d4e0f0);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: 80px auto;
+            background-color: #ffffff;
+            padding: 40px 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: #333333;
+            font-size: 32px;
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 160px;
+            padding: 15px;
+            border: 1.5px solid #ccc;
+            border-radius: 10px;
+            font-size: 16px;
+            resize: vertical;
+            transition: 0.3s ease;
+        }
+
+        textarea:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, 0.2);
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            margin-top: 25px;
+            gap: 20px;
+        }
+
+        button {
+            padding: 12px 24px;
+            font-size: 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        #checkBtn {
+            background-color: #28a745;
+            color: white;
+        }
+
+        #checkBtn:hover {
+            background-color: #218838;
+        }
+
+        #dashboardBtn {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #dashboardBtn:hover {
+            background-color: #0056b3;
+        }
+
+        #result {
+            margin-top: 30px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Email Spam Detection</h1>
+        <form id="emailForm">
+            <textarea id="emailInput" placeholder="Enter email content..."></textarea>
+            <div class="btn-group">
+                <button id="checkBtn" type="submit">Check Spam</button>
+                <button id="dashboardBtn" type="button" onclick="openDashboard()">View Results</button>
+            </div>
+        </form>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        function openDashboard() {
+            window.open("/dashboard", "_blank");
+        }
+
+        document.getElementById('emailForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const email = document.getElementById('emailInput').value.trim();
+
+            if (!email) {
+                document.getElementById('result').textContent = 'Please enter email content.';
+                document.getElementById('result').style.color = 'orange';
+                return;
+            }
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: email })
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                if (data.result) {
+                    resultDiv.textContent = 'Prediction: ' + data.result;
+                    resultDiv.style.color = data.result === 'Spam' ? 'red' : 'green';
+                } else {
+                    resultDiv.textContent = 'Error: ' + data.error;
+                    resultDiv.style.color = 'red';
+                }
+            })
+            .catch(() => {
+                const resultDiv = document.getElementById('result');
+                resultDiv.textContent = 'Error: Could not connect to server.';
+                resultDiv.style.color = 'red';
+            });
+        });
+    </script>
+</body>
+</html>

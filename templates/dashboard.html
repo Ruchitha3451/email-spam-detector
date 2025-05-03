@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Spam Detection Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #eef2f3;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .counts {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 40px;
+        }
+
+        .count-box {
+            background-color: #f0f0f0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            width: 40%;
+            font-size: 18px;
+        }
+
+        .log-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 30px;
+        }
+
+        .log-table th, .log-table td {
+            border: 1px solid #ccc;
+            padding: 10px;
+            text-align: left;
+        }
+
+        .log-table th {
+            background-color: #f4f4f4;
+        }
+
+        .delete-button {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .delete-button:hover {
+            background-color: #c0392b;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Spam Detection Dashboard</h1>
+
+        <div class="counts">
+            <div class="count-box">
+                <strong>Spam Emails:</strong> {{ spam_count }}
+            </div>
+            <div class="count-box">
+                <strong>Not Spam Emails:</strong> {{ not_spam_count }}
+            </div>
+        </div>
+
+        <canvas id="resultChart" height="100"></canvas>
+
+        <h2 style="margin-top: 40px;">Prediction Logs</h2>
+        <table class="log-table">
+            <tr>
+                <th>Timestamp</th>
+                <th>Result</th>
+                <th>Email Text</th>
+                <th>Action</th>
+            </tr>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.timestamp }}</td>
+                <td>{{ log.result }}</td>
+                <td>{{ log.text }}</td>
+                <td>
+                    <form method="POST" action="/delete" onsubmit="return confirm('Delete this entry?');">
+                        <input type="hidden" name="timestamp" value="{{ log.timestamp }}">
+                        <button type="submit" class="delete-button">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('resultChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Spam', 'Not Spam'],
+                datasets: [{
+                    label: 'Email Predictions',
+                    data: [{{ spam_count }}, {{ not_spam_count }}],
+                    backgroundColor: ['#e74c3c', '#2ecc71']
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
